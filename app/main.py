@@ -1,9 +1,19 @@
 # main.py
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from app.routes import auth, blueprint
-from app.database import connect_to_db, close_db_connection  # Assuming you have a function to connect to your DB
+from app.database import close_db_connection  # Assuming you have a function to connect to your DB
 
 app = FastAPI()
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],  # Add specific origins or use ["*"] for all
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all HTTP methods
+    allow_headers=["*"],  # Allows all headers
+)
 
 # Include routers
 app.include_router(auth.router)
@@ -12,12 +22,3 @@ app.include_router(blueprint.router)
 @app.get("/")
 def read_root():
     return {"message": "Welcome to Mechascape!"}
-
-# Connect to the database on startup
-@app.on_event("startup")
-async def startup_event():
-    await connect_to_db()
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    await close_db_connection()  # Close the database connection when the app shuts down

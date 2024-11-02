@@ -2,14 +2,15 @@
 from motor.motor_asyncio import AsyncIOMotorClient
 from fastapi import Depends, FastAPI
 from fastapi import Request
+from pymongo.mongo_client import MongoClient
+from pymongo.server_api import ServerApi
 
 # Replace with your actual MongoDB connection string and database name
-MONGODB_URL = "your_mongodb_atlas_connection_string"
-DB_NAME = "mechascape_db"
+uri = "mongodb+srv://palashk1003:kVe877X8SVR1R3El@cluster0.0fvkl.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 
-# Initialize the MongoDB client
-client = AsyncIOMotorClient(MONGODB_URL)
-db = client[DB_NAME]
+# Create a new client and connect to the server
+client = MongoClient(uri, server_api=ServerApi('1'))
+db = client["mechascape_db"]
 
 async def get_db(request: Request):
     # Return the database object to the route handlers

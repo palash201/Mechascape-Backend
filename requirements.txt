@@ -1,5 +1,6 @@
 # To ensure app dependencies are ported from your virtual environment/host machine into your container, run 'pip freeze > requirements.txt' in the terminal to overwrite this file
 python-multipart
+jwt
 pydantic
 pydantic[email]
 fastapi
@@ -7,8 +8,9 @@ uvicorn
 python-jose[cryptography]
 passlib[bcrypt]
 pymongo
-opencv-python
+motor
+opencv-python-headless
 Pillow
 trimesh
-torch
-transformers
+#torch
+#transformers

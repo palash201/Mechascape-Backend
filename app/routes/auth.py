@@ -37,34 +37,49 @@ async def verify_token(token: str, db):
     except jwt.PyJWTError:
         raise HTTPException(status_code=401, detail="Could not validate credentials")
 
+# Add the get_current_user function
+async def get_current_user(token: str = Depends(oauth2_scheme), db=Depends(get_db)):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        if user_id is None:
+            raise HTTPException(status_code=401, detail="Invalid token")
+        user = await db.users.find_one({"_id": ObjectId(user_id)})
+        if user is None:
+            raise HTTPException(status_code=401, detail="User not found")
+        return str(user["_id"])
+    except jwt.PyJWTError:
+        raise HTTPException(status_code=401, detail="Could not validate credentials")
+
 @router.post("/auth/signup")
-async def signup(user: User, db: Request = Depends(get_db)):
-    existing_user = await db.users.find_one({"username": user.username})
+async def signup(username: str, email: str, plain_password: str, db=Depends(get_db)):
+    existing_user = await db.users.find_one({"username": username})
     if existing_user:
         raise HTTPException(status_code=400, detail="Username already registered")
 
-    existing_email = await db.users.find_one({"email": user.email})
+    existing_email = await db.users.find_one({"email": email})
     if existing_email:
         raise HTTPException(status_code=400, detail="Email already registered")
 
-    hashed_password = pwd_context.hash(user.hashed_password)
+    try:
+        hashed_password = pwd_context.hash(plain_password)
     
-    new_user = {
-        "username": user.username,
-        "email": user.email,
-        "hashed_password": hashed_password,
-    }
+        new_user = {
+            "username": username,
+            "email": email,
+            "hashed_password": hashed_password,
+        }
 
-    result = await db.users.insert_one(new_user)
-    response_user = {
-        "id": str(result.inserted_id),
-        "username": user.username,
-        "email": user.email,
-    }
-    return response_user
+        result = await db.users.insert_one(new_user)
+        return {"message":"Success"}
+            
+    except Exception as e:
+        print(f"Error: {e}")
+        return e
+    
 
 @router.post("/auth/login")
-async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Request = Depends(get_db)):
+async def login(form_data: OAuth2PasswordRequestForm = Depends(), db=Depends(get_db)):
     user = await verify_user(db, form_data.username, form_data.password)
     if not user:
         raise HTTPException(status_code=400, detail="Invalid credentials")
@@ -78,6 +93,6 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Request = 
     return {"token": token}
 
 @router.get("/auth/me")
-async def get_user_profile(token: str = Depends(oauth2_scheme), db: Request = Depends(get_db)):
-    user = await verify_token(token, db)
-    return {"id": str(user["_id"]), "username": user["username"], "email": user["email"]}
+async def get_user_profile(token: str = Depends(oauth2_scheme), db=Depends(get_db)):
+    user: User = await verify_token(token, db)
+    return {"username": user["username"], "email": user["email"]}

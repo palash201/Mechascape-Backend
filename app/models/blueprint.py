@@ -1,6 +1,8 @@
-from pydantic import BaseModel
+# app/models/blueprint.py
+from pydantic import BaseModel, Field
+from typing import Optional
 
-class Blueprint(BaseModel):
-    id: str
+class BlueprintData(BaseModel):
     name: str
-    parameters: dict  # Define your blueprint parameters as necessary
+    description: Optional[str] = None
+    created_at: Optional[str] = Field(default_factory=lambda: datetime.utcnow().isoformat())
