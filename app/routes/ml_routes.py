@@ -22,4 +22,8 @@ async def make_prediction(request: PredictionRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@router.post("/ai/steampunkify")
+async def steampunkify():
+    pass
+
 # Include this router in your main application

@@ -1,6 +1,6 @@
 # main.py
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.cors import CORSMiddleware
 from app.routes import auth, blueprint
 from app.database import close_db_connection  # Assuming you have a function to connect to your DB
 
@@ -9,10 +9,10 @@ app = FastAPI()
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Add specific origins or use ["*"] for all
+    allow_origins=['*'],  # Add specific origins or use ["*"] for all
     allow_credentials=True,
-    allow_methods=["*"],  # Allows all HTTP methods
-    allow_headers=["*"],  # Allows all headers
+    allow_methods=['*'],  # Allows all HTTP methods
+    allow_headers=['*'],  # Allows all headers
 )
 
 # Include routers
