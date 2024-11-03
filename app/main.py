@@ -1,7 +1,7 @@
 # main.py
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
-from app.routes import auth, blueprint
+from app.routes import auth, blueprint, ml_routes
 from app.database import close_db_connection  # Assuming you have a function to connect to your DB
 
 app = FastAPI()
@@ -18,6 +18,7 @@ app.add_middleware(
 # Include routers
 app.include_router(auth.router)
 app.include_router(blueprint.router)
+app.include_router(ml_routes.router)
 
 @app.get("/")
 def read_root():

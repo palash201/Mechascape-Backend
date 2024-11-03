@@ -12,5 +12,6 @@ motor
 opencv-python-headless
 Pillow
 trimesh
+requests
 #torch
 #transformers
